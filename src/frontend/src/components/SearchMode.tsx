@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 
 const TABS = [
   { id: 'tours', label: '🌴 Туры' },
@@ -15,6 +15,8 @@ const SLETAT_MODULE_ID = '60680718-226c-4013-9659-1a3279d05421'
 export default function SearchMode() {
   const [tab, setTab] = useState('tours')
   const [sletatLoaded, setSletatLoaded] = useState(false)
+  const [resultsUrl, setResultsUrl] = useState<string | null>(null)
+  const interceptRef = useRef(false)
 
   useEffect(() => {
     if (tab === 'tours' && !sletatLoaded) {
@@ -29,6 +31,36 @@ export default function SearchMode() {
       setSletatLoaded(true)
     }
   }, [tab, sletatLoaded])
+
+  // Intercept window.open from Sletat widget to show results inline
+  useEffect(() => {
+    if (interceptRef.current) return
+    interceptRef.current = true
+
+    const originalOpen = window.open.bind(window)
+    window.open = function (url?: string | URL, target?: string, features?: string) {
+      if (url && String(url).includes('sletat')) {
+        setResultsUrl(String(url))
+        return null
+      }
+      return originalOpen(url, target, features)
+    }
+
+    // Also intercept link clicks targeting _blank from sletat
+    const handleClick = (e: MouseEvent) => {
+      const anchor = (e.target as Element)?.closest('a')
+      if (anchor && anchor.href?.includes('sletat') && anchor.target === '_blank') {
+        e.preventDefault()
+        setResultsUrl(anchor.href)
+      }
+    }
+    document.addEventListener('click', handleClick, true)
+
+    return () => {
+      window.open = originalOpen
+      document.removeEventListener('click', handleClick, true)
+    }
+  }, [])
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -53,10 +85,30 @@ export default function SearchMode() {
       <div className="bg-white rounded-2xl shadow-md p-6">
         {tab === 'tours' && (
           <div>
-            <div
-              data-sletat-module-id={SLETAT_MODULE_ID}
-              style={{ minHeight: 320 }}
-            />
+            {resultsUrl ? (
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-sm font-medium text-slate-600">Результаты поиска туров</span>
+                  <button
+                    onClick={() => setResultsUrl(null)}
+                    className="text-xs text-slate-400 hover:text-slate-600 underline"
+                  >
+                    ← Новый поиск
+                  </button>
+                </div>
+                <iframe
+                  src={resultsUrl}
+                  className="w-full rounded-xl border border-slate-100"
+                  style={{ height: 600 }}
+                  title="Результаты поиска туров"
+                />
+              </div>
+            ) : (
+              <div
+                data-sletat-module-id={SLETAT_MODULE_ID}
+                style={{ minHeight: 320 }}
+              />
+            )}
           </div>
         )}
 
