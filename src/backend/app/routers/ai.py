@@ -12,6 +12,8 @@ class Message(BaseModel):
 
 class ChatRequest(BaseModel):
     messages: List[Message]
+    flight_context: str | None = None
+    hotel_context: str | None = None
 
 SYSTEM_PROMPT = """Ты — AI-помощник по путешествиям сервиса Nova Horizon (novahorizon.ru).
 Твоя задача — помогать клиентам подбирать туры, авиабилеты и отели.
@@ -34,10 +36,19 @@ async def chat(req: ChatRequest):
     try:
         client = anthropic.AsyncAnthropic(api_key=api_key)
         messages = [{"role": m.role, "content": m.content} for m in req.messages]
+
+        system = SYSTEM_PROMPT
+        if req.flight_context:
+            system += f"\n\nАКТУАЛЬНЫЕ ЦЕНЫ НА АВИАБИЛЕТЫ (из нашей интеграции):\n{req.flight_context}"
+        if req.hotel_context:
+            system += f"\n\nАКТУАЛЬНЫЕ ЦЕНЫ НА ОТЕЛИ (из нашей интеграции Hotellook):\n{req.hotel_context}"
+        if req.flight_context or req.hotel_context:
+            system += "\n\nИспользуй эти реальные данные в своём ответе вместо примерных цен."
+
         response = await client.messages.create(
             model="claude-haiku-4-5-20251001",
             max_tokens=1024,
-            system=SYSTEM_PROMPT,
+            system=system,
             messages=messages,
         )
         return {"response": response.content[0].text}

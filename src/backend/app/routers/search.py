@@ -30,24 +30,28 @@ async def search_flights(
 
 @router.get("/hotels")
 async def search_hotels(
-    city_id: int = Query(..., description="ID города Hotellook"),
+    location: str = Query(..., description="Название города на английском, напр. phuket"),
     check_in: str = Query(..., description="Дата заезда YYYY-MM-DD"),
     check_out: str = Query(..., description="Дата выезда YYYY-MM-DD"),
     adults: int = 2,
+    limit: int = 4,
 ):
     if not TOKEN:
         raise HTTPException(status_code=500, detail="Travelpayouts token не настроен")
-    async with httpx.AsyncClient(timeout=10) as client:
+    async with httpx.AsyncClient(timeout=15) as client:
         resp = await client.get(
-            "https://engine.hotellook.com/api/v2/search/start.json",
+            "https://engine.hotellook.com/api/v2/cache.json",
             params={
-                "cityId": city_id,
+                "location": location,
                 "checkIn": check_in,
                 "checkOut": check_out,
                 "adults": adults,
                 "currency": "rub",
                 "token": TOKEN,
                 "lang": "ru",
+                "limit": limit,
             },
         )
+    if resp.status_code != 200:
+        raise HTTPException(status_code=resp.status_code, detail="Ошибка поиска отелей")
     return resp.json()
