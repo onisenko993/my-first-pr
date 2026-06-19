@@ -1,0 +1,62 @@
+version: '3.8'
+
+services:
+  frontend:
+    build: ./src/frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=${API_URL}
+      - NEXT_PUBLIC_TRAVELPAYOUTS_TOKEN=${TRAVELPAYOUTS_TOKEN}
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  backend:
+    build: ./src/backend
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=${REDIS_URL}
+      - CLAUDE_API_KEY=${CLAUDE_API_KEY}
+      - TRAVELPAYOUTS_TOKEN=${TRAVELPAYOUTS_TOKEN}
+      - TRAVELPAYOUTS_MARKER=${TRAVELPAYOUTS_MARKER}
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+    depends_on:
+      - postgres
+      - redis
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:15-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+
+  celery:
+    build: ./src/backend
+    command: celery -A app.celery worker --loglevel=info
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=${REDIS_URL}
+      - CLAUDE_API_KEY=${CLAUDE_API_KEY}
+      - TRAVELPAYOUTS_TOKEN=${TRAVELPAYOUTS_TOKEN}
+    depends_on:
+      - postgres
+      - redis
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  redis_data:

@@ -1,0 +1,34 @@
+# Секреты — НИКОГДА не коммитить
+.env
+.env.local
+.env.production
+
+# Python
+__pycache__/
+*.py[cod]
+*.so
+.venv/
+venv/
+.pytest_cache/
+
+# Node.js
+node_modules/
+.next/
+dist/
+build/
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Docker volumes (если локально)
+postgres_data/
+redis_data/
