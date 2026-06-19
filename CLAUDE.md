@@ -58,14 +58,21 @@ document.querySelectorAll('.s-tab').forEach((t,i)=>{
 ```
 
 ### Статус вкладок
-| Вкладка | Статус |
-|---------|--------|
-| 🏖 Туры | ✅ Sletat виджет работает |
-| ✈️ Авиабилеты | ✅ Aviasales виджет + кнопка |
-| 🏨 Отели | 🔲 Заглушка, нужно настроить |
-| 🗺 Маршруты | 🔲 Заглушка, нужно настроить |
+| Вкладка | ID блока | Статус | Виджет |
+|---------|----------|--------|--------|
+| 🏖 Туры | tab-tours | ✅ Работает | Sletat module `60680718-226c-4013-9659-1a3279d05421` |
+| ✈️ Авиабилеты | tab-flights | ✅ Работает | tpwidg.com promo_id=7879 campaign_id=100 |
+| 🏨 Отели | tab-hotels | ✅ Работает | tpwidg.com promo_id=8581 campaign_id=193 |
+| 🚌 Трансфер | tab-transfer | ✅ Работает | tpwidg.com promo_id=2949 campaign_id=1 |
+| 🛡️ Страхование | tab-insurance | ✅ Работает | tpwidg.com promo_id=1590 campaign_id=55 |
+| 🚗 Прокат авто | tab-car | ✅ Работает | tp.media promo_id=8813 campaign_id=222 |
+| 🚢 Круизы | tab-cruise | ✅ Работает | tpwidg.com promo_id=5919 campaign_id=182 |
+
+### JS переключения вкладок (строка ~1165)
+```javascript
+const tabIds=['tab-tours','tab-flights','tab-hotels','tab-transfer','tab-insurance','tab-car','tab-cruise'];
+```
 
 ## Следующие задачи
-1. Настроить вкладку «Отели» (Hotellook/Travelpayouts)
-2. Настроить вкладку «Маршруты»
-3. Заменить статичные карточки «Популярные направления» на реальные цены
+1. Заменить статичные карточки «Популярные направления» на реальные цены
+2. Проверить все виджеты на мобильной версии
