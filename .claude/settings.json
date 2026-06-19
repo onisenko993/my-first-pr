@@ -1,0 +1,9 @@
+{
+  "env": {
+    "NOVA_HORIZON_PROJECT": "Nova Horizon AI Travel OS",
+    "NOVA_HORIZON_SERVER": "216.57.110.191",
+    "NOVA_HORIZON_APP_DIR": "/opt/nova-horizon",
+    "NOVA_HORIZON_GITHUB_REPO": "onisenko993/my-first-pr",
+    "NOVA_HORIZON_GITHUB_BRANCH": "claude/kind-cray-dv7vnm"
+  }
+}
